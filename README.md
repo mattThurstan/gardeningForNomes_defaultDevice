@@ -1,1 +1,1 @@
-# gardeningForNomes_defaultDevice
+# lightControl default device
