@@ -70,6 +70,8 @@ void showSegmentEndpoints() {
     _leds[ledSegment[1].last]= CRGB::Red;
     //
     //
+  } else {
+    _led[0] = _rgbBlack;          // modes are responsible for all other leds 
   }
 }
 

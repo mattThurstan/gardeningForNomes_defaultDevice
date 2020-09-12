@@ -1,4 +1,7 @@
-/*----------------------------internal mesh messages - get passed to/from MQTT broker by bridge----------------------------*/
+/*----------------------------internal mesh messages----------------------------*/
+/*---------------------get passed to/from MQTT broker by bridge-----------------*/
+
+/*----------------------------messages - receive----------------------------*/
 void receiveMessage(uint32_t from, String msg)
 {
   uint8_t firstMsgIndex = msg.indexOf(':');
@@ -70,10 +73,8 @@ void receiveMessage(uint32_t from, String msg)
   }
   else if (targetSub == "lights/brightness/set"){
     uint8_t brightness = msgSub.toInt();
-    if (brightness < 0 || brightness > 255) {
-      // do nothing...
-      return;
-    } else {
+    if (brightness < 0 || brightness > 255) { return; } 
+    else {
       setGlobalBrightness(brightness);
       publishBrightness(true);
     }
@@ -127,7 +128,7 @@ void receiveMessage(uint32_t from, String msg)
     if (hueCycleLoopTime < 0 || hueCycleLoopTime > 255) { return; } 
     else {
       _GHue2CycleSaved = hueCycleLoopTime;
-//      checkAndSetTopGHue2CycleMillis();
+      checkAndSetTopGHue2CycleMillis();
       publishGHue2Cycle(true);
     }
   }

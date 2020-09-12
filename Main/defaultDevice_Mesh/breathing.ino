@@ -19,7 +19,11 @@ void loopBreathing() {
   if (_isBreathing == true) {
     breathRiseFall2();
   } else {
-    #ifdef(USING_FASTLED) { }
+    #ifdef (USING_FASTLED) {
+      for (int i = 0; i < _ledNumOfStrips; i++) {
+        fadeToBlackBy( _leds[i], _ledNum, 30); 
+      } 
+    }
     #ifdef(USING_NEOPIXELBRIGHTNESSBUS) { FadeAll(4); }
   }
 }
@@ -45,6 +49,6 @@ void breathRiseFall2() {
     }
   #ifdef(USING_NEOPIXELBRIGHTNESSBUS) {
     FillGradientRGB(ledSegment[2].first, bPeak, _rgbWhite, _rgbBlack);  // left
-    FillGradientRGB((ledSegment[4].first+bPeak), ledSegment[4].total, _rgbBlack, _rgbWhite);  // right
+    //FillGradientRGB((ledSegment[4].first+bPeak), ledSegment[4].total, _rgbBlack, _rgbWhite);  // right
   }
 }

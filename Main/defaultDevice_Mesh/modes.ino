@@ -1,4 +1,4 @@
-
+/*----------------------------mode---------------------------------*/
 /*
  * 0 - glow     (static/moving)
  * 1 - sunrise  (static/moving)
@@ -27,7 +27,7 @@
  */
 void loopModes() {
   if (_onOff) {
-    if(_modeCur == 0) {       mode0(); } 
+    if (_modeCur == 0) {       mode0(); } 
     else if(_modeCur == 1) {  mode1(); }
     else if(_modeCur == 2) {  mode2(); }
     else if(_modeCur == 3) {  mode3(); }
@@ -37,11 +37,37 @@ void loopModes() {
     else if(_modeCur == 7) {  mode7(); }
     else if(_modeCur == 8) {  mode8(); }
   }
-  else { //turn off - fade everything to black
-    for(int i = 0; i < _ledNumOfStrips; i++) {
-      fadeToBlackBy( leds[i], _ledNumPerStrip, 30); 
-    } 
-  } //END onOff else
+  else { }
 }
 
 /*----------------------------modes----------------------------*/
+void mode0() { /* glow */ }
+
+void mode1() {/* sunrise */ }
+  
+void mode2() { /* morning */ } 
+
+void mode3() { /* day */ }
+
+void mode4() { /* working */ 
+  for (int i = ledSegment[1].first; i <= ledSegment[3].last; i++) {
+    if(_topColorTempCur == 0) {
+    //strip.SetPixelColor(i, _warmFluorescent);
+    //strip.ClearTo(_warmFluorescent, ledSegment[1].first, ledSegment[2].last); 
+  } else if(_topColorTempCur == 1) {
+    //strip.SetPixelColor(i, _standardFluorescent);
+    //strip.ClearTo(_standardFluorescent, ledSegment[1].first, ledSegment[2].last); 
+  } else if(_topColorTempCur == 2) {
+    //strip.SetPixelColor(i, _coolWhiteFluorescent);
+    //strip.ClearTo(_coolWhiteFluorescent, ledSegment[1].first, ledSegment[2].last); 
+  }
+  }
+}
+
+void mode5() { /* evening */ }
+
+void mode6() { /* sunset */ }
+
+void mode7() { /* night */ }
+  
+void mode8() { /* effect */ }

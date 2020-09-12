@@ -1,3 +1,5 @@
+/*----------------------------notes----------------------------*/
+
 /* 
  * WeMos D1 (R2 &) mini, 80 MHz, 115200 baud, 4M, (1M SPIFFS)
  * 
@@ -20,7 +22,13 @@
  * 
  * http://wiki.keyestudio.com/index.php/Ks0052_keyestudio_PIR_Motion_Sensor
  * 
- * LED strips
+ * Grove - 12 Key Capacitive I2C Touch Sensor V2 (MPR121)
+ * http://wiki.seeedstudio.com/Grove-12_Key_Capacitive_I2C_Touch_Sensor_V2-MPR121/
+ * 
+ * 
+ * https://hackaday.com/2017/01/20/cheating-at-5v-ws2812-control-to-use-a-3-3v-data-line/
+ * https://github.com/FastLED/FastLED/wiki/Interrupt-problems
+ * 
  * 
  */
  

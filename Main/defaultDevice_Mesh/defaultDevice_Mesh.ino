@@ -34,10 +34,9 @@
 #ifdef{USING_NEOPIXELBRIGHTNESSBUS) { #include <NeoPixelBrightnessBus.h> }                 // NeoPixelBrightnessBus (just for ESP8266)- for brightness functions (instead of NeoPixelBus.h)
 #include <painlessMesh.h>                         // https://github.com/gmag11/painlessMesh
 
-
 /*----------------------------system----------------------------*/
 const String _progName = "defaultDevice";         // default device
-const String _progVers = "0.01";                  // init
+const String _progVers = "0.011";                 // comms and tweak
 
 uint8_t LOCKDOWN_SEVERITY = 0;                    // the severity of the lockdown
 bool LOCKDOWN = false;                            // are we in lockdown?
@@ -65,17 +64,16 @@ bool _isBreathing = false;                        // toggle for breath
 bool _isBreathOverlaid = false;                   // toggle for whether breath is overlaid on top of modes
 bool _isBreathingSynced = false;                  // breath sync local or global
 
-
 /*----------------------------pins----------------------------*/
 #ifdef(USING_FASTLED) {
-  const int _ledDOut0Pin = 4;                   // DOut 0 -> LED strip 0 DIn   - right (short)
-  const int _ledDOut1Pin = 0;                   // DOut 1 -> LED strip 1 DIn   - middle (long)
-  const int _ledDOut2Pin = 2;                   // DOut 2 -> LED strip 2 DIn   - left (long)
-  //const int _ledDOut3Pin = 15;                  // DOut 3 -> LED strip 3 DIn   - SPARE ..for future use
-  //const int _ledDOut4Pin = 27;                  // DOut 4 -> LED strip 4 DIn   - SPARE
-  //const int _ledDOut4Pin = 14;                  // DOut 4 -> LED strip 4 DIn   - SPARE
-  //const int _ledDOut4Pin = 12;                  // DOut 4 -> LED strip 4 DIn   - SPARE
-  //const int _ledDOut4Pin = 13;                  // DOut 4 -> LED strip 4 DIn   - SPARE
+  const int _ledDOut0Pin = 4;                     // DOut 0 -> LED strip 0 DIn   - right (short)
+  const int _ledDOut1Pin = 0;                     // DOut 1 -> LED strip 1 DIn   - middle (long)
+  const int _ledDOut2Pin = 2;                     // DOut 2 -> LED strip 2 DIn   - left (long)
+  //const int _ledDOut3Pin = 15;                    // DOut 3 -> LED strip 3 DIn   - SPARE ..for future use
+  //const int _ledDOut4Pin = 27;                    // DOut 4 -> LED strip 4 DIn   - SPARE
+  //const int _ledDOut4Pin = 14;                    // DOut 4 -> LED strip 4 DIn   - SPARE
+  //const int _ledDOut4Pin = 12;                    // DOut 4 -> LED strip 4 DIn   - SPARE
+  //const int _ledDOut4Pin = 13;                    // DOut 4 -> LED strip 4 DIn   - SPARE
 
 }
 #ifdef(USING_NEOPIXELBRIGHTNESSBUS) {
@@ -83,9 +81,9 @@ bool _isBreathingSynced = false;                  // breath sync local or global
 }
 
 // Wemos D32 (and Pro).
-//const int _i2cInterrupt1Pin = 36;             // I2C interrupt pin 1 - DS3231 - Sunrise/Sunset
-//const int _i2cSDApin = 21;                    // SDA (21) - interrupt pin
-//const int _i2cSCLpin = 22;                    // SCL (22) - interrupt pin
+//const int _i2cInterrupt1Pin = 36;                 // I2C interrupt pin 1 - DS3231 - Sunrise/Sunset
+//const int _i2cSDApin = 21;                        // SDA (21) - interrupt pin
+//const int _i2cSCLpin = 22;                        // SCL (22) - interrupt pin
 
 //const byte _pirPin[2] = { 4, 5 }; // D2, D1       // 2 PIR sensors on interrupt pins (triggered on HIGH)
 
@@ -94,12 +92,12 @@ const int _modeNum = 2;                           // normal, cycle (gHue)
 //const int _modePresetSlotNum = 7;
 //int _modePreset[_modePresetSlotNum] = { 0, 2, 3, 4, 5, 7, 8 }; // test basic, tap bt to cycle around a few mode slots   //expand to array or struct later for more presets
 volatile int _modeCur = 0;                        // current mode in use
-//int _modePresetSlotCur = 3;                   // the current array pos (slot) in the current preset, as opposed to..      //+/- by userInput
+//int _modePresetSlotCur = 3;                       // the current array pos (slot) in the current preset, as opposed to..      //+/- by userInput
 String _modeName[_modeNum] = { "Normal", "Cycle" };
 //String modeName[_modeNum] = { "Glow", "Sunrise", "Morning", "Day", "Working", "Evening", "Sunset", "Night", "Effect" };
 
-const int _colorTempNum = 3;                  // 3 color temperature sub-modes for now
-int _colorTempCur = 1;                        // current colour temperature
+const int _colorTempNum = 3;                      // 3 color temperature sub-modes for now
+int _colorTempCur = 1;                            // current colour temperature
 String colorTempName[_colorTempNum] = { "Warm", "Standard", "CoolWhite" }; // color temperature sub-mode names for the main "Working" mode.
 
 /*----------------------------PIR----------------------------*/
@@ -121,7 +119,7 @@ String colorTempName[_colorTempNum] = { "Warm", "Standard", "CoolWhite" }; // co
 /*----------------------------touch sensors----------------------------*/
 
 /*----------------------------LED----------------------------*/
-const uint16_t _ledNum = 101;                      // 1 + 100 LEDs
+const uint16_t _ledNum = 101;                     // 1 + 100 LEDs
 #ifdef(USING_FASTLED) {
   #define MAX_POWER_DRAW 900 // limit power draw to 0.9A at 5v (with 1A power supply this gives us a bit of head room for board, lights etc.)
 }
@@ -164,11 +162,17 @@ unsigned long _gHue2PrevMillis;                   // gHue loop previous time (mi
 
 HslColor _colorHSL(0.25f, 0.5f, 0.5f);
 
+RgbColor _glowColor(32, 32, 32);
+RgbColor _morningColor(255, 255, 0);
+RgbColor _dayColor(135,206,235);
+RgbColor _eveningColor(128, 64, 64);
+RgbColor _nightColor(64, 64, 64);
+
 // RGB colours for "Working" colour temperature sub-mode
-RgbColor _rgbWarmFluorescent(255, 244, 229);  // WarmFluorescent = 0xFFF4E5 - 0 K, 255, 244, 229
-RgbColor _rgbStandardFluorescent(244, 255, 250); // StandardFluorescent = 0xF4FFFA - 0 K, 244, 255, 250
+RgbColor _rgbWarmFluorescent(255, 244, 229);      // WarmFluorescent = 0xFFF4E5 - 0 K, 255, 244, 229
+RgbColor _rgbStandardFluorescent(244, 255, 250);  // StandardFluorescent = 0xF4FFFA - 0 K, 244, 255, 250
 RgbColor _rgbCoolWhiteFluorescent(212, 235, 255); // CoolWhiteFluorescent = 0xD4EBFF - 0 K, 212, 235, 255
-RgbColor _rgbColorTempCur(_rgbStandardFluorescent); // use this one in day-to-day operations
+//RgbColor _rgbColorTempCur(_rgbStandardFluorescent); // use this one in day-to-day operations
 
 /*----------------------------Mesh----------------------------*/
 painlessMesh  mesh;                               // initialise
@@ -180,15 +184,16 @@ void receivedCallback(uint32_t from, String &msg ) {
 }
 
 void newConnectionCallback(uint32_t nodeId) {
-  if (_runonce == true) {
+  //if (_runonce == true) {
     publishStatusAll(false);
-    _runonce = false;
-  }
+    //_runonce = false;
+  //}
   if (DEBUG_COMMS) { Serial.printf("--> defaultDevice_Mesh: New Connection, nodeId = %u\n", nodeId); }
 }
 
 void changedConnectionCallback() {
   //publish..
+  //publishStatusAll(false);
   if (DEBUG_COMMS) { Serial.printf("Changed connections %s\n",mesh.subConnectionJson().c_str()); }
 }
 
@@ -280,7 +285,7 @@ void loop() {
       _shouldSaveSettings = false; 
     }
   }
-  //factoryReset();              //TODO           // Press and hold the button to reset to factory defaults
+  //factoryReset();              //TODO             // Press and hold the button to reset to factory defaults
 
   #ifdef(USING_FASTLED) {
     FastLED.show();                               // send all the data to the strips

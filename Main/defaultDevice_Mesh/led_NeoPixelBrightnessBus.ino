@@ -16,7 +16,7 @@ void setupLEDs() {
   checkAndSetGHue2CycleMillis();
 }
 
-/*----------------------------FastLED utils-----------------------*/
+/*----------------------------NeoPixelBrightnessBus utils---------*/
 void flashLED(byte led) {
   
   if (led == 0) {

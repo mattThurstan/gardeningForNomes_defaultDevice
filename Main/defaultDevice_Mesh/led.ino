@@ -7,7 +7,7 @@
  * Saved as a uint8_t (using 0-100) and converted to a float (0.0-1.0)
  */
 void gHueRotate() {
-  if (_modeCur == 1) {
+  if (_modeCur == 8) {
     unsigned long _gHue2CurMillis = millis();
     if ( (unsigned long)(_gHue2CurMillis - _gHue2PrevMillis) >= _gHue2CycleMillis) {
       _gHue2PrevMillis = millis(); //re-initilize Timer
