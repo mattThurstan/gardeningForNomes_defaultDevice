@@ -29,7 +29,12 @@ void receiveMessage(uint32_t from, String msg)
     if (msgSub == "Normal") {
       _modeCur = 0;
       _gHue2 = _gHue2saved;
-      checkAndSetColorHSL_H();
+      #ifdef(USING_FASTLED) {
+          checkAndSetColorHSV_H();
+      }
+      #ifdef(USING_NEOPIXELBRIGHTNESSBUS) {
+          checkAndSetColorHSL_H();
+      }
     } else if (msgSub == "Cycle") {
       _modeCur = 1;
     }
@@ -239,5 +244,5 @@ void receiveMessage(uint32_t from, String msg)
   }
   else if(targetSub == "status/request") { if (msgSub == ON) { publishStatusAll(false); }  }
   
-  if (DEBUG_COMMS) { Serial.print(targetSub); Serial.print(" : "); Serial.println(msgSub); }
+  if (DEBUG_COMMS && Serial) { Serial.print(targetSub); Serial.print(" : "); Serial.println(msgSub); }
 }

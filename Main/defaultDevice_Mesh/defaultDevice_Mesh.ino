@@ -24,8 +24,8 @@
     //Wemos D32 Pro (ESP32-WROVER)
 */
 
-#define USING_FASTLED
-//#define USING_NEOPIXELBRIGHTNESSBUS
+#define USING_FASTLED 1
+#define USING_NEOPIXELBRIGHTNESSBUS 0
 
 /*----------------------------libraries----------------------------*/
 #include <MT_LightControlDefines.h>
@@ -36,7 +36,7 @@
 
 /*----------------------------system----------------------------*/
 const String _progName = "defaultDevice";         // default device
-const String _progVers = "0.011";                 // comms and tweak
+const String _progVers = "0.012";                 // tweaks
 
 uint8_t LOCKDOWN_SEVERITY = 0;                    // the severity of the lockdown
 bool LOCKDOWN = false;                            // are we in lockdown?
@@ -93,12 +93,12 @@ const int _modeNum = 2;                           // normal, cycle (gHue)
 //int _modePreset[_modePresetSlotNum] = { 0, 2, 3, 4, 5, 7, 8 }; // test basic, tap bt to cycle around a few mode slots   //expand to array or struct later for more presets
 volatile int _modeCur = 0;                        // current mode in use
 //int _modePresetSlotCur = 3;                       // the current array pos (slot) in the current preset, as opposed to..      //+/- by userInput
-String _modeName[_modeNum] = { "Normal", "Cycle" };
-//String modeName[_modeNum] = { "Glow", "Sunrise", "Morning", "Day", "Working", "Evening", "Sunset", "Night", "Effect" };
+const String _modeName[_modeNum] = { "Normal", "Cycle" };
+//String _modeName[_modeNum] = { "Glow", "Sunrise", "Morning", "Day", "Working", "Evening", "Sunset", "Night", "Effect" };
 
 const int _colorTempNum = 3;                      // 3 color temperature sub-modes for now
 int _colorTempCur = 1;                            // current colour temperature
-String colorTempName[_colorTempNum] = { "Warm", "Standard", "CoolWhite" }; // color temperature sub-mode names for the main "Working" mode.
+const String _colorTempName[_colorTempNum] = { "Warm", "Standard", "CoolWhite" }; // color temperature sub-mode names for the main "Working" mode.
 
 /*----------------------------PIR----------------------------*/
 /* 
@@ -160,7 +160,12 @@ uint8_t _gHue2CycleSaved = 100;                   // 0-255 mapped to millis rang
 uint8_t _gHue2CycleMultiplier = 4;                // (__gHue2CycleSaved * _gHue2CycleMultiplier) = (unsigned long) _gHue2CycleMillis
 unsigned long _gHue2PrevMillis;                   // gHue loop previous time (millis)
 
-HslColor _colorHSL(0.25f, 0.5f, 0.5f);
+#ifdef(USING_FASTLED) {
+  CHSV  _colorHSV(0.25f, 0.5f, 0.5f);
+}
+#ifdef(USING_NEOPIXELBRIGHTNESSBUS) {
+  HslColor _colorHSL(0.25f, 0.5f, 0.5f);
+}
 
 RgbColor _glowColor(32, 32, 32);
 RgbColor _morningColor(255, 255, 0);
@@ -179,7 +184,7 @@ painlessMesh  mesh;                               // initialise
 uint32_t id_bridge1 = DEVICE_ID_BRIDGE1;
 
 void receivedCallback(uint32_t from, String &msg ) {
-  if (DEBUG_COMMS) { Serial.printf("defaultDevice_Mesh: Received from %u msg=%s\n", from, msg.c_str()); }
+  if (DEBUG_COMMS && Serial) { Serial.printf("defaultDevice_Mesh: Received from %u msg=%s\n", from, msg.c_str()); }
   receiveMessage(from, msg);
 }
 
@@ -188,21 +193,21 @@ void newConnectionCallback(uint32_t nodeId) {
     publishStatusAll(false);
     //_runonce = false;
   //}
-  if (DEBUG_COMMS) { Serial.printf("--> defaultDevice_Mesh: New Connection, nodeId = %u\n", nodeId); }
+  if (DEBUG_COMMS && Serial) { Serial.printf("--> defaultDevice_Mesh: New Connection, nodeId = %u\n", nodeId); }
 }
 
 void changedConnectionCallback() {
   //publish..
   //publishStatusAll(false);
-  if (DEBUG_COMMS) { Serial.printf("Changed connections %s\n",mesh.subConnectionJson().c_str()); }
+  if (DEBUG_COMMS && Serial) { Serial.printf("Changed connections %s\n",mesh.subConnectionJson().c_str()); }
 }
 
 void nodeTimeAdjustedCallback(int32_t offset) {
-  if (DEBUG_COMMS) { Serial.printf("Adjusted time %u. Offset = %d\n", mesh.getNodeTime(),offset); }
+  if (DEBUG_COMMS && Serial) { Serial.printf("Adjusted time %u. Offset = %d\n", mesh.getNodeTime(),offset); }
 }
 
 void delayReceivedCallback(uint32_t from, int32_t delay) {
-  if (DEBUG_COMMS) { Serial.printf("Delay to node %u is %d us\n", from, delay); }
+  if (DEBUG_COMMS && Serial) { Serial.printf("Delay to node %u is %d us\n", from, delay); }
 }
 
 
@@ -266,7 +271,7 @@ void loop() {
   if(_firstTimeSetupDone == false) {
     _firstTimeSetupDone = true;                   
     publishStatusAll(false);
-    if (DEBUG_GEN) { Serial.print(F("firstTimeSetupDone  = true")); }
+    if (DEBUG_GEN && Serial) { Serial.print(F("firstTimeSetupDone  = true")); }
   }
 
   //loopUserInputs();                               // loop direct user input

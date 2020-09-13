@@ -1,8 +1,8 @@
 /*----------------------------messages - publish-----------------------*/
 void meshSendSingleToBridge(String nom, String msg, bool save) {
-  if (DEBUG_COMMS) { Serial.print(nom); Serial.print(" - "); }
+  if (DEBUG_COMMS && Serial) { Serial.print(nom); Serial.print(" - "); }
   mesh.sendSingle(id_bridge1, msg);
-  if (DEBUG_COMMS) { Serial.println(msg); }
+  if (DEBUG_COMMS && Serial) { Serial.println(msg); }
   if (save == true) { _shouldSaveSettings = true; }
 }
 void publishMeshMsgSingleState(String nom, String addr, boolean state, bool save) {
@@ -51,7 +51,12 @@ void publishBrightness(bool save) {
 }
 
 void publishRGB(bool save) {
-  RgbColor tempRGB = _colorHSL;
+  #ifdef(USING_FASTLED) {
+    CRGB tempRGB = _colorHSV;
+  }
+  #ifdef(USING_NEOPIXELBRIGHTNESSBUS) {
+    RgbColor tempRGB = _colorHSL;
+  }
   publishMeshMsgSingleColor("publishRGB", "lights/rgb/status", tempRGB.R, tempRGB.G, tempRGB.B, save);
 }
 
@@ -98,7 +103,7 @@ void publishDebugCommsState(bool save) {
 
 void publishStatusAll(bool save) {
   
-  if (DEBUG_COMMS) { Serial.println("publishStatusAll "); }
+  if (DEBUG_COMMS && Serial) { Serial.println("publishStatusAll "); }
   publishState(save);
   publishDayMode(save);
   publishMode(save);

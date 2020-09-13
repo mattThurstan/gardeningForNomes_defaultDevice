@@ -2,14 +2,14 @@
 void loadSettings()
 {
     //read configuration from FS json
-    if (DEBUG_GEN) { Serial.println("mounting FS..."); }
+    if (DEBUG_GEN && Serial) { Serial.println("mounting FS..."); }
 
     if (!SPIFFS.begin()) {
-        if (DEBUG_GEN) { Serial.println("failed to mount FS"); }
+        if (DEBUG_GEN && Serial) { Serial.println("failed to mount FS"); }
         return;
     }
     
-    if (DEBUG_GEN) { Serial.println("mounted file system"); }
+    if (DEBUG_GEN && Serial) { Serial.println("mounted file system"); }
 
     if (!SPIFFS.exists("/settings.json")) {
       setDefaults();
@@ -17,7 +17,7 @@ void loadSettings()
     }
     else {
       //file exists, reading and loading
-      if (DEBUG_GEN) { Serial.println("reading user settings file"); }
+      if (DEBUG_GEN && Serial) { Serial.println("reading user settings file"); }
       File configFile = SPIFFS.open("/settings.json", "r");
       DynamicJsonDocument jsonDoc(512);
       const size_t size = configFile.size();
@@ -25,15 +25,15 @@ void loadSettings()
       std::unique_ptr<char[]> buf(new char[size]);
 
       DeserializationError error = deserializeJson(jsonDoc, buf.get());
-      if (DEBUG_GEN) { serializeJson(jsonDoc, Serial); /* print output */ }
+      if (DEBUG_GEN && Serial) { serializeJson(jsonDoc, Serial); /* print output */ }
       if (error) {
         if (DEBUG_GEN) { Serial.println("failed to load json user settings (using defaults)"); }
         setDefaults();
         _shouldSaveSettings = true;
       } 
       else { 
-        if (DEBUG_GEN) { Serial.println("loaded user settings file"); }
-        if (DEBUG_GEN) { Serial.println("\nparsed json"); }
+        if (DEBUG_GEN && Serial) { Serial.println("loaded user settings file"); }
+        if (DEBUG_GEN && Serial) { Serial.println("\nparsed json"); }
 
         _ledGlobalBrightnessCur = jsonDoc["gBrightnessCur"];
         _ledRiseSpeedSaved = jsonDoc["ledRiseSpeedSaved"];
@@ -52,10 +52,10 @@ void loadSettings()
 
 void saveSettings()
 {
-  if (DEBUG_GEN) { Serial.println("saving user settings"); }
+  if (DEBUG_GEN && Serial) { Serial.println("saving user settings"); }
   
   if (!SPIFFS.begin()) {
-      if (DEBUG_GEN) { Serial.println("failed to mount FS"); }
+      if (DEBUG_GEN && Serial) { Serial.println("failed to mount FS"); }
       return;
   }
 
@@ -65,7 +65,7 @@ void saveSettings()
   //File settingsFile = SPIFFS.open("/settings.json", FILE_WRITE);
   
   if (!settingsFile) { 
-    if (DEBUG_GEN) { Serial.println("Error opening user settings file for writing"); }
+    if (DEBUG_GEN && Serial) { Serial.println("Error opening user settings file for writing"); }
   }
 
   DynamicJsonDocument jsonDoc(512);
@@ -79,7 +79,7 @@ void saveSettings()
   json["colorHSL_S"] = _colorHSL.S;
   json["colorHSL_L"] = _colorHSL.L;
 
-  if (DEBUG_GEN) { 
+  if (DEBUG_GEN && Serial) { 
     serializeJson(jsonDoc, Serial);       // output to serial
   }
   

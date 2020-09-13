@@ -75,7 +75,7 @@ void FillGradientRGB(byte first, byte total, RgbColor colA, RgbColor colB) {
       
       strip.SetPixelColor( (indexPixel + first), updatedColor);
       
-      if (DEBUG_GEN) { 
+      if (DEBUG_GEN && Serial) { 
         Serial.print("SetGradient - i "); 
         Serial.print(indexPixel); 
         Serial.print(", ti - "); 
@@ -91,6 +91,50 @@ void FillGradientRGB(byte first, byte total, RgbColor colA, RgbColor colB) {
         Serial.println(); 
       }
     }
+}
+
+/*
+ * Increment gHue by 0.1 every N milliseconds
+ * Saved as a uint8_t (using 0-100) and converted to a float (0.0-1.0)
+ */
+void gHueRotate() {
+  if (_modeCur == 8) {
+    unsigned long _gHue2CurMillis = millis();
+    if ( (unsigned long)(_gHue2CurMillis - _gHue2PrevMillis) >= _gHue2CycleMillis) {
+      _gHue2PrevMillis = millis(); //re-initilize Timer
+      _gHue2++;                                   // slowly cycle the "base color" through the rainbow
+      checkAndSetColorHSL_H();
+    }
+  }
+}
+
+/*
+ * Checks and resets _gHue2 bounds 0-100
+ * Converts and sets main colour Hue
+ */
+void checkAndSetColorHSL_H() {
+  if (_gHue2 > 100) { _gHue2 = 0; }           // rollover catch
+  float tg = (float) _gHue2;
+  tg = tg/100;
+  _colorHSL.H = tg;
+}
+
+/*
+ * Set HSL colour
+ */
+void setColorHSL(RgbColor rgb) {
+  _colorHSL = rgb;
+  _gHue2 = _colorHSL.H;
+  //_gHue2saved = _colorHSL.H;
+  
+  if (DEBUG_GEN && Serial) { 
+    Serial.print("setColorHSL - R ");
+    Serial.print(rgb.R);
+    Serial.print(", G ");
+    Serial.print(rgb.G);
+    Serial.print(", B ");
+    Serial.println(rgb.B);
+  }
 }
 
 /*

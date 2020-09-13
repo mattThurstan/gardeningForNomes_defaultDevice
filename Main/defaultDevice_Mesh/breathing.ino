@@ -24,7 +24,9 @@ void loopBreathing() {
         fadeToBlackBy( _leds[i], _ledNum, 30); 
       } 
     }
-    #ifdef(USING_NEOPIXELBRIGHTNESSBUS) { FadeAll(4); }
+    #ifdef(USING_NEOPIXELBRIGHTNESSBUS) { 
+      FadeAll(4); 
+    }
   }
 }
 
@@ -35,8 +37,10 @@ uint8_t bPeak;
 void breathRiseFall2() {
 
   if (_isBreathOverlaid == false) {
-    #ifdef(USING_FASTLED) { }
-    #ifdef(USING_NEOPIXELBRIGHTNESSBUS) { strip.ClearTo(_rgbBlack); }
+    #ifdef(USING_FASTLED) { FastLED.clear(); }
+    #ifdef(USING_NEOPIXELBRIGHTNESSBUS) { 
+      strip.ClearTo(_rgbBlack); 
+    }
   }
   bPeak = beatsin8( bBpm, 1, bMax); //bpm, min, max
   
